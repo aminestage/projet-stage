@@ -1,0 +1,46 @@
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f9f9f9;
+    margin: 0;
+    padding: 0;
+  }
+  
+  button {
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    border: none;
+  }
+  
+  .primary-button {
+    background-color: #10b981;
+    color: white;
+  }
+  
+  .secondary-button {
+    background-color: #f1f5f9;
+    color: #333;
+  }
+  
+  .primary-button:hover,
+  .secondary-button:hover {
+    opacity: 0.8;
+  }
+  
+  header {
+    background-color: #10b981;
+    color: white;
+    padding: 20px;
+    text-align: center;
+  }
+  
+  footer {
+    text-align: center;
+    background-color: #333;
+    color: white;
+    padding: 10px;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+  }
+  

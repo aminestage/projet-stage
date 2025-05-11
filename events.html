@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Événements - Gestion des Événements</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/events.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <section class="events">
+    <div class="container">
+      <h2>Ajouter un événement</h2>
+      <form>
+        <table>
+          <tr>
+            <th>Champ</th>
+            <th>Valeur</th>
+          </tr>
+          <tr>
+            <td>Titre</td>
+            <td><input type="text" id="eventTitle" /></td>
+          </tr>
+          <tr>
+            <td>Type</td>
+            <td>
+              <select id="eventType">
+                <option value="réunion">Réunion</option>
+                <option value="formation">Formation</option>
+                <option value="team-building">Team Building</option>
+                <option value="autre">Autre</option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td>Date</td>
+            <td><input type="date" id="eventDate" /></td>
+          </tr>
+          <tr>
+            <td>Heure</td>
+            <td><input type="time" id="eventTime" /></td>
+          </tr>
+          <tr>
+            <td>Durée (min)</td>
+            <td><input type="number" id="eventDuration" min="15" /></td>
+          </tr>
+          <tr>
+            <td>Lieu</td>
+            <td><input type="text" id="eventLocation" /></td>
+          </tr>
+          <tr>
+            <td>Description</td>
+            <td><textarea id="eventDescription" rows="4"></textarea></td>
+          </tr>
+          <tr>
+            <td>Capacité</td>
+            <td><input type="number" id="eventCapacity" min="1" /></td>
+          </tr>
+        </table>
+        <div class="buttons">
+          <button class="primary-button">Enregistrer</button>
+          <button class="secondary-button">Annuler</button>
+        </div>
+      </form>
+      <hr>
+      <h2>Liste des événements</h2>
+      <table class="event-list">
+        <thead>
+          <tr>
+            <th>Titre</th>
+            <th>Type</th>
+            <th>Date</th>
+            <th>Heure</th>
+            <th>Durée</th>
+            <th>Lieu</th>
+            <th>Capacité</th>
+            <th>Participants</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Réunion Équipe</td>
+            <td>Réunion</td>
+            <td>2025-05-15</td>
+            <td>10:00</td>
+            <td>60</td>
+            <td>Salle 1</td>
+            <td>20</td>
+            <td>12</td>
+            <td>
+              <button class="btn-success">Modifier</button>
+              <button class="btn-danger">Supprimer</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</body>
+</html>

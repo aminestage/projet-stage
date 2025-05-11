@@ -1,0 +1,43 @@
+.events {
+    margin: 2rem auto;
+    width: 80%;
+    max-width: 900px;
+  }
+  
+  h2 {
+    font-size: 2rem;
+    color: #333;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  table th,
+  table td {
+    padding: 10px;
+    text-align: left;
+  }
+  
+  table th {
+    background-color: #f1f5f9;
+  }
+  
+  input, select, textarea {
+    width: 100%;
+    padding: 10px;
+    margin-top: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  table tbody tr {
+    background-color: #fff;
+  }
+  
+  button {
+    padding: 8px 16px;
+    margin-top: 10px;
+  }
+  
