@@ -16,15 +16,15 @@
       <form>
         <table>
           <tr>
-            <th>Champ</th>
-            <th>Valeur</th>
+            <th>Titre</th>
           </tr>
           <tr>
-            <td>Titre</td>
             <td><input type="text" id="eventTitle" /></td>
           </tr>
           <tr>
-            <td>Type</td>
+            <th>Type</th>
+          </tr>
+          <tr>
             <td>
               <select id="eventType">
                 <option value="réunion">Réunion</option>
@@ -35,27 +35,39 @@
             </td>
           </tr>
           <tr>
-            <td>Date</td>
+            <th>Date</th>
+          </tr>
+          <tr>
             <td><input type="date" id="eventDate" /></td>
           </tr>
           <tr>
-            <td>Heure</td>
+            <th>Heure</th>
+          </tr>
+          <tr>
             <td><input type="time" id="eventTime" /></td>
           </tr>
           <tr>
-            <td>Durée (min)</td>
+            <th>Durée (min)</th>
+          </tr>
+          <tr>
             <td><input type="number" id="eventDuration" min="15" /></td>
           </tr>
           <tr>
-            <td>Lieu</td>
+            <th>Lieu</th>
+          </tr>
+          <tr>
             <td><input type="text" id="eventLocation" /></td>
           </tr>
           <tr>
-            <td>Description</td>
+            <th>Description</th>
+          </tr>
+          <tr>
             <td><textarea id="eventDescription" rows="4"></textarea></td>
           </tr>
           <tr>
-            <td>Capacité</td>
+            <th>Capacité</th>
+          </tr>
+          <tr>
             <td><input type="number" id="eventCapacity" min="1" /></td>
           </tr>
         </table>
@@ -63,7 +75,7 @@
           <button class="primary-button">Enregistrer</button>
           <button class="secondary-button">Annuler</button>
         </div>
-      </form>
+      </form>      
       <hr>
       <h2>Liste des événements</h2>
       <table class="event-list">
