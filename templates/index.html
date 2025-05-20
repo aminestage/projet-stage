@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Accueil - Gestion des Événements</title>
-  <link rel="stylesheet" href="css/style.css" />
-  <link rel="stylesheet" href="css/index.css" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
 </head>
@@ -14,8 +14,8 @@
     <div class="container">
       <h1>Gestionnaire d'Événements</h1>
       <nav>
-        <a href="index.html" class="nav-link active">Accueil</a>
-        <a href="events.html" class="nav-link">Événements</a>
+        <a href="{{ url_for('index') }}" class="nav-link active">Accueil</a>
+        <a href="{{ url_for('events') }}" class="nav-link">Événements</a>
       </nav>
     </div>
   </header>
@@ -24,7 +24,7 @@
     <section class="hero section-center">
       <h1>Organisez vos événements d'entreprise facilement</h1>
       <p>Un outil simple et efficace pour planifier, suivre et gérer les événements internes de votre entreprise.</p>
-      <a href="events.html" class="cta-button">Commencer maintenant</a>
+      <a href="{{ url_for('events') }}" class="cta-button">Commencer maintenant</a>
     </section>
   </main>
 

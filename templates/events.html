@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Événements - Gestion des Événements</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/events.css') }}" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1>Gestionnaire d'Événements</h1>
+      <nav>
+        <a href="{{ url_for('index') }}">Accueil</a>
+        <a href="{{ url_for('events') }}" class="active">Événements</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="events">
+    <div class="container">
+      <h2>Ajouter un événement</h2>
+      <form method="POST">
+        <table>
+          <tr><th>Titre</th></tr>
+          <tr><td><input type="text" name="title" required /></td></tr>
+
+          <tr><th>Type</th></tr>
+          <tr>
+            <td>
+              <select name="type" required>
+                <option value="réunion">Réunion</option>
+                <option value="formation">Formation</option>
+                <option value="team-building">Team Building</option>
+                <option value="autre">Autre</option>
+              </select>
+            </td>
+          </tr>
+
+          <tr><th>Date</th></tr>
+          <tr><td><input type="date" id="eventDate" name="date" required /></td></tr>
+
+          <tr><th>Heure</th></tr>
+          <tr><td><input type="time" id="eventTime" name="time" required /></td></tr>
+
+          <tr><th>Durée (min)</th></tr>
+          <tr><td><input type="number" name="duration" min="15" required /></td></tr>
+
+          <tr><th>Lieu</th></tr>
+          <tr><td><input type="text" name="location" required /></td></tr>
+
+          <tr><th>Description</th></tr>
+          <tr><td><textarea name="description" rows="4"></textarea></td></tr>
+
+          <tr><th>Capacité</th></tr>
+          <tr><td><input type="number" name="capacity" min="1" required /></td></tr>
+        </table>
+
+        <div class="buttons">
+          <button class="primary-button" type="submit">Enregistrer</button>
+          <button class="secondary-button" type="reset">Annuler</button>
+        </div>
+      </form>
+
+      <hr>
+
+      <h2>Liste des événements</h2>
+      <table class="event-list">
+        <thead>
+          <tr>
+            <th>Titre</th>
+            <th>Type</th>
+            <th>Date</th>
+            <th>Heure</th>
+            <th>Durée</th>
+            <th>Lieu</th>
+            <th>Capacité</th>
+            <th>Participants</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for event in evenements %}
+          <tr>
+            <td>{{ event.titre }}</td>
+            <td>{{ event.type }}</td>
+            <td>{{ event.date }}</td>
+            <td>{{ event.heure }}</td>
+            <td>{{ event.duree }}</td>
+            <td>{{ event.lieu }}</td>
+            <td>{{ event.capacite }}</td>
+            <td>{{ event.participants }}</td>
+            <td>
+              <button class="btn-success">Modifier</button>
+              <button class="btn-danger">Supprimer</button>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="9" style="text-align:center;">Aucun événement pour l’instant.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</body>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const dateInput = document.getElementById("eventDate");
+    const timeInput = document.getElementById("eventTime");
+    const form = document.querySelector("form");
+
+    const today = new Date().toISOString().split("T")[0];
+    dateInput.min = today;
+
+    dateInput.addEventListener("focus", () => {
+      dateInput.showPicker && dateInput.showPicker();
+    });
+    timeInput.addEventListener("focus", () => {
+      timeInput.showPicker && timeInput.showPicker();
+    });
+
+    form.addEventListener("submit", (e) => {
+      const selectedDate = new Date(dateInput.value);
+      const now = new Date();
+
+      if (dateInput.value === today) {
+        const [hours, minutes] = timeInput.value.split(":");
+        const selectedTime = new Date();
+        selectedTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+
+        if (selectedTime <= now) {
+          alert("L'heure doit être dans le futur pour la date d'aujourd'hui.");
+          e.preventDefault();
+          return false;
+        }
+      }
+
+      if (selectedDate < new Date(today)) {
+        alert("La date doit être aujourd'hui ou dans le futur.");
+        e.preventDefault();
+        return false;
+      }
+    });
+  });
+</script>
+</html>

@@ -59,26 +59,6 @@ nav a.active {
   text-align: center;
 }
 
-#calendrier h2 {
-  font-size: 2rem;
-  color: #0f172a;
-  margin-bottom: 25px;
-  font-weight: 700;
-}
-
-.calendar-placeholder {
-  height: 250px;
-  border: 2px dashed #1d4ed8;
-  border-radius: 10px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: #1d4ed8;
-  font-style: italic;
-  font-size: 1.2rem;
-  user-select: none;
-}
-
 .hero {
   background-color: #e2e8f0;
   padding: 60px 20px;
