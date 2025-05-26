@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Tableau de Bord - Gestion des Événements</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="header-content">
+                <h1>
+                    <i class="fas fa-chart-line"></i>
+                    Tableau de Bord
+                </h1>
+                <nav class="nav-pills">
+                    <a href="/" class="nav-link">
+                        <i class="fas fa-home"></i> Accueil
+                    </a>
+                    <a href="/dashboard" class="nav-link active">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                    <a href="/events" class="nav-link">
+                        <i class="fas fa-calendar"></i> Événements
+                    </a>
+                </nav>
+            </div>
+        </header>
+        <div class="dashboard-grid">
+            <div class="notifications-panel">
+                <div class="panel-header">
+                    <i class="fas fa-bell"></i>
+                    <h2>Notifications</h2>
+                    <span class="refresh-indicator">
+                        <i class="fas fa-sync-alt"></i> Live
+                    </span>
+                </div>
+
+                {% if notifications.urgent or notifications.bientot or notifications.aujourd_hui or notifications.demain %}
+                    {% if notifications.urgent %}
+                    <div class="notification-card urgent">
+                        <div class="card-header">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            URGENT - Prochaines 30 minutes
+                        </div>
+                        <div class="card-body">
+                            {% for event in notifications.urgent %}
+                            <div class="event-item">
+                                <div class="event-title">{{ event.titre }}</div>
+                                <div class="event-details">
+                                    <span><i class="fas fa-clock"></i> {{ event.heure or "Heure non précisée" }}</span>
+                                    <span class="time-remaining">{{ formater_temps_restant(event.time_diff) }}</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if notifications.bientot %}
+                    <div class="notification-card bientot">
+                        <div class="card-header">
+                            <i class="fas fa-clock"></i>
+                            BIENTÔT - Prochaines 2 heures
+                        </div>
+                        <div class="card-body">
+                            {% for event in notifications.bientot %}
+                            <div class="event-item">
+                                <div class="event-title">{{ event.titre }}</div>
+                                <div class="event-details">
+                                    <span><i class="fas fa-clock"></i> {{ event.heure or "Heure non précisée" }}</span>
+                                    <span class="time-remaining">{{ formater_temps_restant(event.time_diff) }}</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if notifications.aujourd_hui %}
+                    <div class="notification-card aujourd-hui">
+                        <div class="card-header">
+                            <i class="fas fa-calendar-day"></i>
+                            AUJOURD'HUI
+                        </div>
+                        <div class="card-body">
+                            {% for event in notifications.aujourd_hui %}
+                            <div class="event-item">
+                                <div class="event-title">{{ event.titre }}</div>
+                                <div class="event-details">
+                                    <span><i class="fas fa-clock"></i> {{ event.heure or "Heure non précisée" }}</span>
+                                    <span class="time-remaining">{{ formater_temps_restant(event.time_diff) }}</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if notifications.demain %}
+                    <div class="notification-card demain">
+                        <div class="card-header">
+                            <i class="fas fa-calendar-plus"></i>
+                            DEMAIN
+                        </div>
+                        <div class="card-body">
+                            {% for event in notifications.demain %}
+                            <div class="event-item">
+                                <div class="event-title">{{ event.titre }}</div>
+                                <div class="event-details">
+                                    <span><i class="fas fa-clock"></i> {{ event.heure or "Heure non précisée" }}</span>
+                                    <span class="time-remaining">{{ formater_temps_restant(event.time_diff) }}</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-check-circle"></i>
+                    <h3>Aucune notification</h3>
+                    <p>Tous vos événements sont bien planifiés</p>
+                </div>
+                {% endif %}
+            </div>
+            <div class="notifications-panel">
+                <div class="panel-header">
+                    <i class="fas fa-chart-bar"></i>
+                    <h2>Statistiques</h2>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number">{{ stats.total_evenements }}</div>
+                        <div class="stat-label">Total Événements</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">{{ stats.evenements_aujourd_hui }}</div>
+                        <div class="stat-label">Aujourd'hui</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">{{ stats.evenements_cette_semaine }}</div>
+                        <div class="stat-label">Cette Semaine</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">{{ stats.types_evenements|length }}</div>
+                        <div class="stat-label">Types d'Événements</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="upcoming-events">
+            <div class="panel-header">
+                <i class="fas fa-calendar-week"></i>
+                <h2>Événements à Venir</h2>
+                <span style="color: #64748b; font-size: 0.9rem;">Prochains 7 jours</span>
+            </div>
+
+            {% if evenements_a_venir %}
+                {% for event in evenements_a_venir %}
+                <div class="upcoming-event-item">
+                    <div class="event-date">
+                        <div class="event-day">{{ event.date.split('-')[2] }}</div>
+                        <div class="event-month">
+                            {% set months = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'] %}
+                            {{ months[event.date.split('-')[1]|int - 1] }}
+                        </div>
+                    </div>
+                    <div class="event-info">
+                        <h4>{{ event.titre }}</h4>
+                        <div class="event-meta">
+                            <span><i class="fas fa-clock"></i> {{ event.heure or "Heure non précisée" }}</span>
+                            <span><i class="fas fa-map-marker-alt"></i> {{ event.lieu }}</span>
+                            <span><i class="fas fa-tag"></i> {{ event.type }}</span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+            <div class="empty-state">
+                <i class="fas fa-calendar-times"></i>
+                <h3>Aucun événement à venir</h3>
+                <p>Planifiez de nouveaux événements dans la section Événements</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        setInterval(() => {
+            if (document.hasFocus()) {
+                location.reload();
+            }
+        }, 30000);
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('Dashboard chargé à', new Date().toLocaleTimeString());
+            const cards = document.querySelectorAll('.notification-card, .stat-card, .upcoming-event-item');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    card.style.transition = 'all 0.5s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        });
+    </script>
+</body>
+</html>

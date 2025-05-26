@@ -28,15 +28,35 @@
   }
   
   header {
-    background-color: #10b981;
+    background-color: #0f172a;
     color: white;
     padding: 20px;
     text-align: center;
   }
   
+  .toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #ffc107;
+    color: #212529;
+    padding: 15px 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    z-index: 1000;
+    animation: fadein 1s ease-in-out;
+    font-family: sans-serif;
+    min-width: 300px;
+  }
+  
+  @keyframes fadein {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
   footer {
     text-align: center;
-    background-color: #333;
+    background-color: #0f172a;
     color: white;
     padding: 10px;
     position: fixed;

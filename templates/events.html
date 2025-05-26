@@ -1,125 +1,197 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Événements - Gestion des Événements</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/events.css') }}" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Événements - Gestion des Événements</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/events.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <header>
-    <div class="container">
-      <h1>Gestionnaire d'Événements</h1>
-      <nav>
-        <a href="{{ url_for('index') }}">Accueil</a>
-        <a href="{{ url_for('events') }}" class="active">Événements</a>
-      </nav>
-    </div>
-  </header>
-
-  <section class="events">
-    <div class="container">
-      <h2>Ajouter un événement</h2>
-      <form method="POST">
-        <table>
-          <tr><th>Titre</th></tr>
-          <tr><td><input type="text" name="title" required /></td></tr>
-
-          <tr><th>Type</th></tr>
-          <tr>
-            <td>
-              <select name="type" required>
-                <option value="réunion">Réunion</option>
-                <option value="formation">Formation</option>
-                <option value="team-building">Team Building</option>
-                <option value="autre">Autre</option>
-              </select>
-            </td>
-          </tr>
-
-          <tr><th>Date</th></tr>
-          <tr><td><input type="date" id="eventDate" name="date" required /></td></tr>
-
-          <tr><th>Heure</th></tr>
-          <tr><td><input type="time" id="eventTime" name="time" required /></td></tr>
-
-          <tr><th>Durée (min)</th></tr>
-          <tr><td><input type="number" name="duration" min="15" required /></td></tr>
-
-          <tr><th>Lieu</th></tr>
-          <tr><td><input type="text" name="location" required /></td></tr>
-
-          <tr><th>Description</th></tr>
-          <tr><td><textarea name="description" rows="4"></textarea></td></tr>
-
-          <tr><th>Capacité</th></tr>
-          <tr><td><input type="number" name="capacity" min="1" required /></td></tr>
-        </table>
-
-        <div class="buttons">
-          <button class="primary-button" type="submit">Enregistrer</button>
-          <button class="secondary-button" type="reset">Annuler</button>
+    <header>
+        <div class="container">
+            <h1>Gestionnaire d'Événements</h1>
+            <nav>
+                <a href="{{ url_for('index') }}" class="nav-link">Accueil</a>
+                <a href="{{ url_for('events') }}" class="nav-link active">Événements</a>
+                <a href="{{ url_for('dashboard') }}">Dashboard</a>
+            </nav>
         </div>
-      </form>
+    </header>
 
-      <hr>
+    <main>
+        <div class="events">
+            <section class="form-section">
+                <h2><i class="fas fa-plus-circle"></i> Ajouter un événement</h2>
+                <form method="POST" class="event-form">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="title">Titre *</label>
+                            <input type="text" id="title" name="title" required placeholder="Nom de l'événement">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="type">Type</label>
+                            <select id="type" name="type">
+                                <option value="Réunion">Réunion</option>
+                                <option value="Formation">Formation</option>
+                                <option value="Conférence">Conférence</option>
+                                <option value="Team Building">Team Building</option>
+                                <option value="Présentation">Présentation</option>
+                                <option value="Autre">Autre</option>
+                            </select>
+                        </div>
 
-      <h2>Liste des événements</h2>
-      <table class="event-list">
-        <thead>
-          <tr>
-            <th>Titre</th>
-            <th>Type</th>
-            <th>Date</th>
-            <th>Heure</th>
-            <th>Durée</th>
-            <th>Lieu</th>
-            <th>Capacité</th>
-            <th>Participants</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for event in evenements %}
-          <tr>
-            <td>{{ event.titre }}</td>
-            <td>{{ event.type }}</td>
-            <td>{{ event.date }}</td>
-            <td>{{ event.heure }}</td>
-            <td>{{ event.duree }}</td>
-            <td>{{ event.lieu }}</td>
-            <td>{{ event.capacite }}</td>
-            <td>{{ event.participants }}</td>
-            <td>
-              <button class="btn-success">Modifier</button>
-              <button class="btn-danger">Supprimer</button>
-            </td>
-          </tr>
-          {% else %}
-          <tr><td colspan="9" style="text-align:center;">Aucun événement pour l’instant.</td></tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  </section>
+                        <div class="form-group">
+                            <label for="date">Date *</label>
+                            <input type="date" id="date" name="date" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="time">Heure</label>
+                            <input type="time" id="time" name="time">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="duration">Durée (minutes)</label>
+                            <input type="number" id="duration" name="duration" placeholder="ex: 60" min="1">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="location">Lieu *</label>
+                            <input type="text" id="location" name="location" required placeholder="Salle de réunion, adresse...">
+                        </div>
+
+                        <div class="form-group form-group-full">
+                            <label for="description">Description</label>
+                            <textarea id="description" name="description" rows="3" placeholder="Détails de l'événement..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="capacity">Capacité</label>
+                            <input type="number" id="capacity" name="capacity" placeholder="Nombre de places" min="1">
+                        </div>
+                    </div>
+
+                    <div class="buttons">
+                        <button type="submit" class="primary-button">
+                            <i class="fas fa-save"></i> Ajouter l'événement
+                        </button>
+                        <button type="reset" class="secondary-button">
+                            <i class="fas fa-undo"></i> Réinitialiser
+                        </button>
+                    </div>
+                </form>
+            </section>
+            <section class="list-section">
+                <h2><i class="fas fa-calendar-alt"></i> Liste des événements</h2>
+                
+                {% if evenements %}
+                <div class="table-container">
+                    <table class="events-table">
+                        <thead>
+                            <tr>
+                                <th>Titre</th>
+                                <th>Type</th>
+                                <th>Date & Heure</th>
+                                <th>Durée</th>
+                                <th>Lieu</th>
+                                <th>Capacité</th>
+                                <th>Participants</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for event in evenements %}
+                            <tr>
+                                <td class="event-title">
+                                    <strong>{{ event.titre }}</strong>
+                                    {% if event.description %}
+                                    <br><small class="description">{{ event.description[:50] }}{% if event.description|length > 50 %}...{% endif %}</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge badge-{{ event.type.lower().replace(' ', '-') }}">
+                                        {{ event.type }}
+                                    </span>
+                                </td>
+                                <td class="date-time">
+                                    <div class="date">{{ event.date }}</div>
+                                    {% if event.heure %}
+                                    <div class="time">{{ event.heure }}</div>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if event.duree %}
+                                        {{ event.duree }} min
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                                <td>{{ event.lieu }}</td>
+                                <td class="capacity">
+                                    {% if event.capacite %}
+                                        {{ event.capacite }}
+                                    {% else %}
+                                        Illimitée
+                                    {% endif %}
+                                </td>
+                                <td class="participants">
+                                    <span class="participant-count">{{ event.participants }}</span>
+                                    {% if event.capacite %}
+                                        / {{ event.capacite }}
+                                    {% endif %}
+                                </td>
+                                <td class="actions">
+                                    <button class="btn-success" title="Modifier">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <a href="{{ url_for('delete_event', event_id=event.id) }}" 
+                                       class="btn-danger" 
+                                       onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet événement ?')"
+                                       title="Supprimer">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-calendar-times"></i>
+                    <h3>Aucun événement</h3>
+                    <p>Commencez par ajouter votre premier événement ci-dessus.</p>
+                </div>
+                {% endif %}
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            &copy; 2025 - Projet de Stage - Gestion des Événements
+        </div>
+    </footer>
 </body>
 <script>
   document.addEventListener("DOMContentLoaded", () => {
-    const dateInput = document.getElementById("eventDate");
-    const timeInput = document.getElementById("eventTime");
+    const dateInput = document.getElementById("date");
+    const timeInput = document.getElementById("time");
     const form = document.querySelector("form");
 
     const today = new Date().toISOString().split("T")[0];
     dateInput.min = today;
 
     dateInput.addEventListener("focus", () => {
-      dateInput.showPicker && dateInput.showPicker();
+      if (dateInput.showPicker) dateInput.showPicker();
     });
+
     timeInput.addEventListener("focus", () => {
-      timeInput.showPicker && timeInput.showPicker();
+      if (timeInput.showPicker) timeInput.showPicker();
     });
 
     form.addEventListener("submit", (e) => {
@@ -130,12 +202,6 @@
         const [hours, minutes] = timeInput.value.split(":");
         const selectedTime = new Date();
         selectedTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
-
-        if (selectedTime <= now) {
-          alert("L'heure doit être dans le futur pour la date d'aujourd'hui.");
-          e.preventDefault();
-          return false;
-        }
       }
 
       if (selectedDate < new Date(today)) {
