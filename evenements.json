@@ -1,0 +1,14 @@
+[
+  {
+    "id": 1,
+    "titre": "jasi",
+    "type": "formation",
+    "date": "2025-05-27",
+    "heure": "23:02",
+    "duree": "90",
+    "lieu": "sdfsdf",
+    "description": "",
+    "capacite": 10,
+    "participants": 0
+  }
+]
