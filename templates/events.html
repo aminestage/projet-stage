@@ -118,11 +118,12 @@
                                     </span>
                                 </td>
                                 <td class="date-time">
-                                    <div class="date">{{ event.date }}</div>
-                                    {% if event.heure %}
-                                    <div class="time">{{ event.heure }}</div>
-                                    {% endif %}
-                                </td>
+                                  <div class="date">{{ event['date'] }}</div>
+                                  {% if event['heure'] %}
+                                  <div class="time">{{ event['heure'] }}</div>
+                                  {% endif %}                                  
+                                </td>                              
+                              
                                 <td>
                                     {% if event.duree %}
                                         {{ event.duree }} min
