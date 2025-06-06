@@ -49,9 +49,9 @@
                         <div class="card-body">
                             {% for event in notifications.urgent %}
                             <div class="event-item">
-                                <div class="event-title">{{ event.titre }}</div>
+                                <div class="event-title">{{ event.tilte }}</div>
                                 <div class="event-details">
-                                    <span><i class="fas fa-clock"></i> {{ event.heure or "Heure non précisée" }}</span>
+                                    <span><i class="fas fa-clock"></i> {{ event.time or "time non précisée" }}</span>
                                     <span class="time-remaining">{{ formater_temps_restant(event.time_diff) }}</span>
                                 </div>
                             </div>
@@ -68,9 +68,9 @@
                         <div class="card-body">
                             {% for event in notifications.bientot %}
                             <div class="event-item">
-                                <div class="event-title">{{ event.titre }}</div>
+                                <div class="event-title">{{ event.title }}</div>
                                 <div class="event-details">
-                                    <span><i class="fas fa-clock"></i> {{ event.heure or "Heure non précisée" }}</span>
+                                    <span><i class="fas fa-clock"></i> {{ event.time or "time non précisée" }}</span>
                                     <span class="time-remaining">{{ formater_temps_restant(event.time_diff) }}</span>
                                 </div>
                             </div>
@@ -87,9 +87,9 @@
                         <div class="card-body">
                             {% for event in notifications.aujourd_hui %}
                             <div class="event-item">
-                                <div class="event-title">{{ event.titre }}</div>
+                                <div class="event-title">{{ event.title }}</div>
                                 <div class="event-details">
-                                    <span><i class="fas fa-clock"></i> {{ event.heure or "Heure non précisée" }}</span>
+                                    <span><i class="fas fa-clock"></i> {{ event.time or "time non précisée" }}</span>
                                     <span class="time-remaining">{{ formater_temps_restant(event.time_diff) }}</span>
                                 </div>
                             </div>
@@ -106,9 +106,9 @@
                         <div class="card-body">
                             {% for event in notifications.demain %}
                             <div class="event-item">
-                                <div class="event-title">{{ event.titre }}</div>
+                                <div class="event-title">{{ event.title }}</div>
                                 <div class="event-details">
-                                    <span><i class="fas fa-clock"></i> {{ event.heure or "Heure non précisée" }}</span>
+                                    <span><i class="fas fa-clock"></i> {{ event.time or "time non précisée" }}</span>
                                     <span class="time-remaining">{{ formater_temps_restant(event.time_diff) }}</span>
                                 </div>
                             </div>
@@ -167,10 +167,10 @@
                         </div>
                     </div>
                     <div class="event-info">
-                        <h4>{{ event.titre }}</h4>
+                        <h4>{{ event.title }}</h4>
                         <div class="event-meta">
-                            <span><i class="fas fa-clock"></i> {{ event.heure or "Heure non précisée" }}</span>
-                            <span><i class="fas fa-map-marker-alt"></i> {{ event.lieu }}</span>
+                            <span><i class="fas fa-clock"></i> {{ event.time or "time non précisée" }}</span>
+                            <span><i class="fas fa-map-marker-alt"></i> {{ event.location }}</span>
                             <span><i class="fas fa-tag"></i> {{ event.type }}</span>
                         </div>
                     </div>

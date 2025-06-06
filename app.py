@@ -16,20 +16,21 @@ DB_CONFIG = {
 class DatabaseManager:
     def __init__(self):
         self.connection = None
-    
+        self.connect()
+
     def connect(self):
-        """Établir la connexion à la base de données"""
         try:
-            if self.connection and self.connection.is_connected():
-                return True
-                
-            self.connection = mysql.connector.connect(**DB_CONFIG)
+            self.connection = mysql.connector.connect(
+                host='localhost',
+                database='gestion_evenements',
+                user='root',
+                password=''
+            )
             if self.connection.is_connected():
                 print("Connexion à MySQL réussie")
-                return True
         except Error as e:
-            print(f"Erreur de connexion à MySQL: {e}")
-            return False
+            print(f"Erreur lors de la connexion : {e}")
+            self.connection = None
     
     def disconnect(self):
         """Fermer la connexion à la base de données"""
@@ -37,29 +38,25 @@ class DatabaseManager:
             self.connection.close()
             print("Connexion MySQL fermée")
     
-    def execute_query(self, query, params=None, fetch=False):
-        """Exécuter une requête SQL"""
+    def execute_query(self, query, params=None, fetch=False, commit=False):
+        if self.connection is None or not self.connection.is_connected():
+            self.connect()
+
+        cursor = self.connection.cursor(dictionary=True)
+
         try:
-            if not self.connection or not self.connection.is_connected():
-                if not self.connect():
-                    return None if fetch else False
-            
-            cursor = self.connection.cursor(dictionary=True)
-            cursor.execute(query, params or ())
-            
+            cursor.execute(query, params or [])
             if fetch:
                 result = cursor.fetchall()
-                cursor.close()
                 return result
-            else:
+            if commit:
                 self.connection.commit()
-                cursor.close()
-                return True
+            return True
         except Error as e:
-            print(f"Erreur lors de l'exécution de la requête: {e}")
-            print(f"Requête: {query}")
-            print(f"Paramètres: {params}")
-            return None if fetch else False
+            print(f"Erreur lors de l'exécution de la requête : {e}")
+            return False
+        finally:
+            cursor.close()
 
 db_manager = DatabaseManager()
 
@@ -70,10 +67,10 @@ class EvenementManager:
     def get_tous_evenements(self):
         """Récupérer tous les événements"""
         query = """
-        SELECT id, titre, type, date, heure, duree, lieu, description, 
+        SELECT id, title, type, date, time, duration, location, description, 
                capacite, participants, created_at 
         FROM evenements 
-        ORDER BY date, heure
+        ORDER BY date, time
         """
         return db_manager.execute_query(query, fetch=True)
     
@@ -88,23 +85,23 @@ class EvenementManager:
         print(f"DEBUG - Données reçues pour ajout: {data}")
         
         query = """
-        INSERT INTO evenements (titre, type, date, heure, duree, lieu, description, capacite, participants)
+        INSERT INTO evenements (title, type, date, time, duration, location, description, capacite, participants)
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
         params = (
-            data['titre'],
+            data['title'],
             data['type'],
             data['date'],
-            data['heure'],
-            data['duree'],
-            data['lieu'],
+            data['time'],
+            data['duration'],
+            data['location'],
             data.get('description', ''),
             data['capacite'],
             data.get('participants', 0)
         )
         
         print(f"DEBUG - Paramètres SQL: {params}")
-        result = db_manager.execute_query(query, params)
+        result = db_manager.execute_query(query, params, commit=True)  # Added commit=True
         print(f"DEBUG - Résultat insertion: {result}")
         return result
     
@@ -112,33 +109,33 @@ class EvenementManager:
         """Modifier un événement existant"""
         query = """
         UPDATE evenements 
-        SET titre=%s, type=%s, date=%s, heure=%s, duree=%s, lieu=%s, 
+        SET title=%s, type=%s, date=%s, time=%s, duration=%s, location=%s, 
             description=%s, capacite=%s, participants=%s
         WHERE id=%s
         """
         params = (
-            data['titre'],
+            data['title'],
             data['type'],
             data['date'],
-            data['heure'],
-            data['duree'],
-            data['lieu'],
+            data['time'],
+            data['duration'],
+            data['location'],
             data.get('description', ''),
             data['capacite'],
             data.get('participants', 0),
             evenement_id
         )
-        return db_manager.execute_query(query, params)
+        return db_manager.execute_query(query, params, commit=True)
     
     def supprimer_evenement(self, evenement_id):
         """Supprimer un événement"""
         query = "DELETE FROM evenements WHERE id = %s"
-        return db_manager.execute_query(query, (evenement_id,))
+        return db_manager.execute_query(query, (evenement_id,), commit=True)
     
     def incrementer_participants(self, evenement_id):
         """Incrémenter le nombre de participants"""
         query = "UPDATE evenements SET participants = participants + 1 WHERE id = %s"
-        return db_manager.execute_query(query, (evenement_id,))
+        return db_manager.execute_query(query, (evenement_id,), commit=True)
     
     def decrementer_participants(self, evenement_id):
         """Décrémenter le nombre de participants"""
@@ -150,7 +147,7 @@ class EvenementManager:
         END 
         WHERE id = %s
         """
-        return db_manager.execute_query(query, (evenement_id,))
+        return db_manager.execute_query(query, (evenement_id,), commit=True)
     
     def get_evenements_dashboard(self):
         evenements = self.get_tous_evenements()
@@ -161,7 +158,7 @@ class EvenementManager:
 
         for event in evenements:
             event_date = event.get('date')
-            event_heure = event.get('heure')
+            event_heure = event.get('time')
             
             if isinstance(event_heure, timedelta):
                 event_heure = (datetime.min + event_heure).time()
@@ -203,6 +200,59 @@ class EvenementManager:
         return stats
 
 evenement_manager = EvenementManager()
+
+def render_template_with_events(template, **kwargs):
+    """Helper pour rendre le template avec la liste des événements formatés"""
+    evenements = evenement_manager.get_tous_evenements() or []
+    
+    print(f"DEBUG - render_template_with_events: {len(evenements)} événements récupérés")
+    
+    for event in evenements:
+        print(f"DEBUG - Événement brut: {event}")
+        
+        if event.get('date'):
+            if hasattr(event['date'], 'strftime'):
+                event['date_formatted'] = event['date'].strftime('%d/%m/%Y')
+            else:
+                event['date_formatted'] = str(event['date'])
+        else:
+            event['date_formatted'] = 'Non définie'
+            
+        if event.get('time'):
+            if isinstance(event['time'], timedelta):
+                total_seconds = int(event['time'].total_seconds())
+                hours = total_seconds // 3600
+                minutes = (total_seconds % 3600) // 60
+                event['time_formatted'] = f"{hours:02d}:{minutes:02d}"
+            elif hasattr(event['time'], 'strftime'):
+                event['time_formatted'] = event['time'].strftime('%H:%M')
+            else:
+                event['time_formatted'] = str(event['time'])
+        else:
+            event['time_formatted'] = 'Non définie'
+            
+        if event.get('duration'):
+            if isinstance(event['duration'], timedelta):
+                duration_minutes = int(event['duration'].total_seconds() // 60)
+                event['duration_formatted'] = f"{duration_minutes} min"
+            elif isinstance(event['duration'], int):
+                event['duration_formatted'] = f"{event['duration']} min"
+            else:
+                event['duration_formatted'] = str(event['duration'])
+        else:
+            event['duration_formatted'] = 'Non définie'
+            
+        if not event.get('location'):
+            event['location'] = 'Non défini'
+            
+        if event.get('capacite') == 0:
+            event['capacite_formatted'] = 'Illimitée'
+        else:
+            event['capacite_formatted'] = str(event['capacite'])
+            
+        print(f"DEBUG - Événement formaté: date={event.get('date_formatted')}, time={event.get('time_formatted')}, duration={event.get('duration_formatted')}, location={event.get('location')}")
+    
+    return render_template(template, evenements=evenements, **kwargs)
 
 def formater_temps_restant(time_diff):
     """Formater le temps restant en format lisible"""
@@ -250,8 +300,8 @@ def dashboard():
         
         if isinstance(event_date, date):
             event['date'] = event_date.strftime('%Y-%m-%d')
-        if event['heure']:
-            event['heure'] = event['heure'].strftime('%H:%M') if hasattr(event['heure'], 'strftime') else str(event['heure'])
+        if event['time']:
+            event['time'] = event['time'].strftime('%H:%M') if hasattr(event['time'], 'strftime') else str(event['time'])
         
         if time_diff.total_seconds() > 0:  
             if time_diff.total_seconds() <= 1800: 
@@ -288,23 +338,21 @@ def events():
         print(f"DEBUG - Données du formulaire: {request.form.to_dict()}")
         
         try:
-            titre = request.form.get('title', '').strip()
-            type_event = request.form.get('type', '').strip()
-            date_event = request.form.get('date', '').strip()
-            heure_event = request.form.get('time', '').strip()
-            lieu_event = request.form.get('location', '').strip()
-            duree_str = request.form.get('duration', '60').strip()
-            capacite_str = request.form.get('capacity', '0').strip()
+            title = request.form.get('title', '').strip()
+            event_type = request.form.get('type', '').strip()  
+            event_date = request.form.get('date', '').strip()  
+            event_time = request.form.get('time', '').strip()  
+            location = request.form.get('location', '').strip()
+            duration = request.form.get('duration', '60').strip()
+            capacite = request.form.get('capacite', '0').strip()
             description = request.form.get('description', '').strip()
-            
-            print(f"DEBUG - Champs extraits: titre={titre}, type={type_event}, date={date_event}, heure={heure_event}")
-            
+                        
             champs_requis = {
-                'titre': titre,
-                'type': type_event,
-                'date': date_event,
-                'heure': heure_event,
-                'lieu': lieu_event
+                'title': title,
+                'type': event_type,
+                'date': event_date,
+                'time': event_time,
+                'location': location
             }
             
             champs_manquants = [nom for nom, valeur in champs_requis.items() if not valeur]
@@ -316,23 +364,23 @@ def events():
                 return render_template_with_events('events.html', form_data=request.form.to_dict())
             
             try:
-                duree = int(duree_str) if duree_str else 60
-                capacite = int(capacite_str) if capacite_str else 0
+                duration = int(duration) if duration else 60
+                capacite = int(capacite) if capacite else 0
             except ValueError:
                 error_msg = 'Durée et capacité doivent être des nombres entiers'
                 print(f"DEBUG - {error_msg}")
                 flash(error_msg, 'error')
                 return render_template_with_events('events.html', form_data=request.form.to_dict())
             
-            types_valides = ['Conférence', 'Atelier', 'Séminaire', 'Formation', 'Réunion']
-            if type_event not in types_valides:
+            types_valides = ['Réunion', 'Formation', 'Conférence', 'Team Building', 'Présentation', 'Autre']
+            if event_type not in types_valides:
                 error_msg = f'Type d\'événement invalide. Types valides: {", ".join(types_valides)}'
                 print(f"DEBUG - {error_msg}")
                 flash(error_msg, 'error')
                 return render_template_with_events('events.html', form_data=request.form.to_dict())
             
             try:
-                time_obj = datetime.strptime(heure_event, '%H:%M').time()
+                time_obj = datetime.strptime(event_time, '%H:%M').time()
                 heure_formatted = time_obj.strftime('%H:%M:%S')
             except ValueError:
                 error_msg = 'Format de l\'heure invalide. Utilisez le format HH:MM'
@@ -341,7 +389,7 @@ def events():
                 return render_template_with_events('events.html', form_data=request.form.to_dict())
             
             try:
-                date_obj = datetime.strptime(date_event, '%Y-%m-%d').date()
+                date_obj = datetime.strptime(event_date, '%Y-%m-%d').date()
                 if date_obj < date.today():
                     error_msg = 'La date de l\'événement ne peut pas être dans le passé'
                     print(f"DEBUG - {error_msg}")
@@ -354,12 +402,12 @@ def events():
                 return render_template_with_events('events.html', form_data=request.form.to_dict())
             
             data = {
-                'titre': titre,
-                'type': type_event,
-                'date': date_event,
-                'heure': heure_formatted,
-                'duree': duree,
-                'lieu': lieu_event,
+                'title': title,
+                'type': event_type,
+                'date': event_date,
+                'time': heure_formatted,
+                'duration': duration,
+                'location': location,
                 'description': description if description else None,
                 'capacite': capacite,
                 'participants': 0
@@ -387,68 +435,49 @@ def events():
 
 @app.route('/edit_event/<int:event_id>', methods=['GET', 'POST'])
 def edit_event(event_id):
-    """Modifier un événement existant"""
+    TYPES_EVENEMENT = ['Réunion', 'Formation', 'Conférence', 'Team Building', 'Présentation', 'Autre']
+
     if request.method == 'POST':
-        try:
-            titre = request.form.get('title', '').strip()
-            type_event = request.form.get('type', '').strip()
-            date_event = request.form.get('date', '').strip()
-            heure_event = request.form.get('time', '').strip()
-            lieu_event = request.form.get('location', '').strip()
-            duree_str = request.form.get('duration', '60').strip()
-            capacite_str = request.form.get('capacity', '0').strip()
-            participants_str = request.form.get('participants', '0').strip()
-            description = request.form.get('description', '').strip()
-            
-            if not all([titre, type_event, date_event, heure_event, lieu_event]):
-                flash('Tous les champs requis doivent être remplis', 'error')
-                return redirect(url_for('edit_event', event_id=event_id))
-            
-            duree = int(duree_str) if duree_str else 60
-            capacite = int(capacite_str) if capacite_str else 0
-            participants = int(participants_str) if participants_str else 0
-            
-            time_obj = datetime.strptime(heure_event, '%H:%M').time()
-            heure_formatted = time_obj.strftime('%H:%M:%S')
-            
-            datetime.strptime(date_event, '%Y-%m-%d').date()
-            
-            data = {
-                'titre': titre,
-                'type': type_event,
-                'date': date_event,
-                'heure': heure_formatted,
-                'duree': duree,
-                'lieu': lieu_event,
-                'description': description if description else None,
-                'capacite': capacite,
-                'participants': participants
-            }
-            
-            if evenement_manager.modifier_evenement(event_id, data):
-                flash('Événement modifié avec succès!', 'success')
-                return redirect(url_for('events'))
-            else:
-                flash('Erreur lors de la modification de l\'événement', 'error')
-                
-        except ValueError:
-            flash('Données invalides. Vérifiez les formats de date et heure.', 'error')
-        except Exception as e:
-            flash(f'Erreur inattendue: {str(e)}', 'error')
-    
-    evenement = evenement_manager.get_evenement_par_id(event_id)
-    if not evenement:
-        flash('Événement introuvable', 'error')
+        title = request.form['title']
+        event_type = request.form['type']  
+        event_date = request.form['date']  
+        event_time = request.form['time']
+        duration = request.form['duration']
+        location = request.form['location']
+        description = request.form['description']
+        capacite = request.form['capacite']
+
+        if not title or not event_type or not event_date:
+            flash('Veuillez remplir tous les champs obligatoires.', 'error')
+            return redirect(request.url)
+
+        if event_type not in TYPES_EVENEMENT:
+            flash("Type d'événement invalide.", 'error')
+            return redirect(request.url)
+
+        query = """
+            UPDATE evenements
+            SET title=%s, type=%s, date=%s, time=%s, duration=%s, location=%s, description=%s, capacite=%s, updated_at=NOW()
+            WHERE id=%s
+        """
+        values = (title, event_type, event_date, event_time, duration, location, description, capacite, event_id)
+
+        success = db_manager.execute_query(query, values, commit=True)
+        if success:
+            flash('Événement mis à jour avec succès.', 'success')
+            return redirect(url_for('events'))
+        else:
+            flash('Erreur lors de la mise à jour.', 'error')
+
+    evenement = db_manager.execute_query("SELECT * FROM evenements WHERE id = %s", (event_id,), fetch=True)
+    if evenement:
+        evenement = evenement[0]
+    else:
+        flash("Événement introuvable.", "error")
         return redirect(url_for('events'))
-    
-    if evenement.get('date') and hasattr(evenement['date'], 'strftime'):
-        evenement['date'] = evenement['date'].strftime('%Y-%m-%d')
-    if evenement.get('heure') and hasattr(evenement['heure'], 'strftime'):
-        evenement['heure'] = evenement['heure'].strftime('%H:%M')
-    if evenement.get('duree') and isinstance(evenement['duree'], timedelta):
-        evenement['duree'] = int(evenement['duree'].total_seconds() // 60)
-    
-    return render_template('edit_event.html', evenement=evenement)
+
+    return render_template('edit_event.html', evenement=evenement, types_evenement=TYPES_EVENEMENT)
+
 
 @app.route('/delete_event/<int:event_id>')
 def delete_event(event_id):
@@ -477,20 +506,6 @@ def remove_participant(event_id):
         flash('Erreur lors du retrait du participant', 'error')
     return redirect(url_for('events'))
 
-def render_template_with_events(template, **kwargs):
-    """Helper pour rendre le template avec la liste des événements formatés"""
-    evenements = evenement_manager.get_tous_evenements() or []
-    
-    for event in evenements:
-        if event.get('date') and hasattr(event['date'], 'strftime'):
-            event['date'] = event['date'].strftime('%d/%m/%Y')
-        if event.get('heure') and hasattr(event['heure'], 'strftime'):
-            event['heure'] = event['heure'].strftime('%H:%M')
-        if event.get('duree') and isinstance(event['duree'], timedelta):
-            event['duree'] = int(event['duree'].total_seconds() // 60)
-    
-    return render_template(template, evenements=evenements, **kwargs)
-
 def init_database():
     """Initialiser la base de données avec la structure requise"""
     try:
@@ -506,12 +521,12 @@ def init_database():
         create_table_query = """
         CREATE TABLE IF NOT EXISTS evenements (
             id INT AUTO_INCREMENT PRIMARY KEY,
-            titre VARCHAR(255) NOT NULL,
-            type ENUM('Conférence', 'Atelier', 'Séminaire', 'Formation', 'Réunion') NOT NULL,
+            title VARCHAR(255) NOT NULL,
+            type ENUM('Réunion', 'Formation', 'Conférence', 'Team Building', 'Présentation', 'Autre') NOT NULL,
             date DATE NOT NULL,
-            heure TIME NOT NULL,
-            duree INT NOT NULL COMMENT 'Durée en minutes',
-            lieu VARCHAR(255) NOT NULL,
+            time TIME NOT NULL,
+            duration INT NOT NULL COMMENT 'Durée en minutes',
+            location VARCHAR(255) NOT NULL,
             description TEXT,
             capacite INT NOT NULL DEFAULT 0,
             participants INT NOT NULL DEFAULT 0,
@@ -520,8 +535,12 @@ def init_database():
         )
         """
         cursor.execute(create_table_query)
+        connection.commit()
         
         cursor.execute("SELECT COUNT(*) FROM evenements")
+        result = cursor.fetchone()
+        print(f"Table evenements has {result[0]} records")
+        
         cursor.close()
         connection.close()
         print("Base de données initialisée avec succès")
